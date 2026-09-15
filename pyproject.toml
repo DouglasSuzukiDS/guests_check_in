@@ -1,5 +1,5 @@
 [tool.poe.tasks]
 
-test = 'python -m pytest'
+test = "python -m pytest"
 
-venv = 'venv\Scripts\activate'
+initialize = 'python -m venv venv'
