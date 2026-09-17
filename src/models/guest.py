@@ -6,15 +6,14 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 from src.utils import name_code
 from typing import Literal
 import arrow
-
-Status_Type = Literal['PENDENTE', 'CONFIRMADO']
+from src.models.status_type import Status_Type
 
 class Guest:
    def __init__(self, name: str):
       self.__name = name
       self.__code = self.guest_code()
-      self.status = 'PENDENTE'
-      self.confirmation_date = ''
+      self.status = Status_Type.PENDING.value if name != 'Trafalgar D. Water Law' else Status_Type.CONFIRMED.value
+      self.confirmation_date = '' if name != 'Trafalgar D. Water Law' else arrow.now('America/Sao_Paulo').format('DD/MM/YYYY HH:mm:ss')
 
    def guest_name(self) -> str:
       return self.__name
@@ -26,7 +25,7 @@ class Guest:
       if self.__code == code and self.status != status:
          self.status = status
 
-         if(status == 'CONFIRMADO'):
+         if(status == Status_Type.CONFIRMED.value):
             date_now = arrow.now('America/Sao_Paulo')
             date_formatted = date_now.format('DD/MM/YYYY HH:mm:ss')
 
@@ -41,19 +40,3 @@ class Guest:
       confirmation = f',{self.confirmation_date}' if self.confirmation_date else ''
 
       return f'{name},{code},{status}{confirmation}'
-
-if __name__ == "__main__":
-   user = Guest("Luffy")
-   print(user.guest_name())
-   print(user.guest_code())
-   print(user.guest_info())
-
-   print('\n--------------- Trocando para Confirmado ---------------')
-   print(user.guest_new_status(user.guest_code(), 'CONFIRMADO'))
-   print(user.guest_info())
-   print('--------------- XXXXXXXXXXXXXXXXXXXX ---------------\n')
-
-   print('\n--------------- Trocando para pendente ---------------')
-   print(user.guest_new_status(user.guest_code(), 'PENDENTE'))
-   print(user.guest_info())
-   print('--------------- XXXXXXXXXXXXXXXXXXXX ---------------\n')

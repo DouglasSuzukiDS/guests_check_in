@@ -15,6 +15,3 @@ def name_code(name: str):
    code = f'{initial}{final}'.upper()
    
    return code
-
-print(name_code('Luffy'))
-print(name_code('Tragalfar Water D. Law'))
