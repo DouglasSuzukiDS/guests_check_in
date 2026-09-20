@@ -62,6 +62,16 @@ class LobbyManager:
       except IOError as error:
          print(f'❌ Nao foi possivel criar o arquivo: {error} ❌')
 
+   def read_csv_file(self):
+      try:
+         with open(self._csv_file, 'r', **self._encoding_new_line) as file:
+            reader = csv.DictReader(file)
+            reader = list(reader)
+
+            return reader
+      except FileNotFoundError as fileNotFoundError:
+         print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
+         
    def show_guest_list(self, list: List[Dict], status: Status_Type = Status_Type.ALL):
       found_guests = '✔️  Convidados encontrados: ✔️'
       status_emoji = '⌛' if status.value == 'PENDENTE' else '✅️'
@@ -73,17 +83,26 @@ class LobbyManager:
       guests = list if status.value == 'TODOS' else [guest for guest in list if guest['status'] == status.value]
 
       for guest in guests:
-         enter_at = f", {guest['entrada_em']}" if guest['status'] == Status_Type.CONFIRMED.value else ""
+         # enter_at = f", {guest['entrada_em']}" if guest['status'] == Status_Type.CONFIRMED.value else ""
 
-         print(f'{guest['nome']}, {guest['codigo']}, {guest['status']}{enter_at}')
+         # print(f'{guest['nome']}, {guest['codigo']}, {guest['status']}{enter_at}')
+         guest = Guest(guest['nome'])
+         print(guest.guest_info())
 
    def guests_list(self, status: Status_Type = Status_Type.ALL):
-      try:
-         with open(self._csv_file, 'r', **self._encoding_new_line) as file:
-            reader = csv.DictReader(file)
-            reader = list(reader)
+      file = self.read_csv_file()
 
-            # guests = [guest for guest in reader if guest['status'] == status.value]
-            self.show_guest_list(reader, status)
-      except FileNotFoundError as fileNotFoundError:
-         print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
+      self.show_guest_list(file, status)
+
+   def guest_code(self, code:str):
+      list = self.read_csv_file()
+  
+      guests = [guest for guest in list if guest['codigo'] == code.upper()]
+
+      for guest in guests:
+         guest = Guest(guest['nome'])
+         print(guest.guest_info())
+
+
+   def change_guest_status(self, code: str, status: Status_Type):
+      new_status = Status_Type.CONFIRMED.value if status.value != Status_Type.CONFIRMED.value else Status_Type.PENDING.value
