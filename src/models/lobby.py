@@ -4,11 +4,11 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import csv
-from typing import List, Dict, Literal
+from typing import List, Dict
 
 from src.models.guest import Guest
 from src.models.status_type import Status_Type
-
+from src.models.class_only_method import ClassOnlyMethod
 
 class LobbyManager:
    def __init__(self):
@@ -18,10 +18,12 @@ class LobbyManager:
       self._csv_file = self._root / 'src' / 'data' / 'lista_eventos.csv'
       self._encoding_new_line = {'encoding': 'UTF-8', 'newline': ''}
 
+      self.get_guests_list()
+
    def get_guests_list(self):
       if self._csv_file.is_file():
          # self.show_guest_list(self._csv_file)
-         pass
+         return
       
       try:
          guest_list = []
@@ -39,10 +41,10 @@ class LobbyManager:
                   guest_list.append(dict(structure)) 
 
          self.format_guest_list(self._csv_file, guest_list)
-         self.show_guest_list(self._csv_file)
+         # self.show_guest_list(guest_list)
 
-      except FileNotFoundError:
-         print(f'⚠️ Falha ao localizar arquivo base. ⚠️')
+      except FileNotFoundError as fileNotFoundError:
+         print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
       except Exception as error:
          print(f'❌ Nao foi possivel executar a acao. {error} ❌')
 
@@ -55,24 +57,27 @@ class LobbyManager:
             writer.writerows(guest_list)
 
             print(f'✅ Arquivo {Path(file.name).name} criado com sucesso. ✅\n')
-      except FileNotFoundError:
-            print(f'⚠️ Falha ao localizar arquivo base. ⚠️')
+      except FileNotFoundError as fileNotFoundError:
+            print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
       except IOError as error:
          print(f'❌ Nao foi possivel criar o arquivo: {error} ❌')
 
-   def show_guest_list(self, list: List[Dict], status: Status_Type | Literal['all'] = 'all'):
-      message = '✔️  Convidados encontrados: ✔️' if status == 'all' else f'🔄 Filtrando usuarios com status: {status.value} 🔄'
+   def show_guest_list(self, list: List[Dict], status: Status_Type = Status_Type.ALL):
+      found_guests = '✔️  Convidados encontrados: ✔️'
+      status_emoji = '⌛' if status.value == 'PENDENTE' else '✅️'
+      status_message = f'{status_emoji} Filtrando usuarios com status: {status.value} {status_emoji}'
+      message = found_guests if status.value == 'TODOS' else status_message
 
       print(f'{message} \n')
 
-      guests = list if status == 'all' else [guest for guest in list if guest['status'] == status.value]
+      guests = list if status.value == 'TODOS' else [guest for guest in list if guest['status'] == status.value]
 
       for guest in guests:
          enter_at = f", {guest['entrada_em']}" if guest['status'] == Status_Type.CONFIRMED.value else ""
 
          print(f'{guest['nome']}, {guest['codigo']}, {guest['status']}{enter_at}')
 
-   def guests_list(self, status: Status_Type | Literal['all'] = 'all'):
+   def guests_list(self, status: Status_Type = Status_Type.ALL):
       try:
          with open(self._csv_file, 'r', **self._encoding_new_line) as file:
             reader = csv.DictReader(file)
@@ -80,17 +85,5 @@ class LobbyManager:
 
             # guests = [guest for guest in reader if guest['status'] == status.value]
             self.show_guest_list(reader, status)
-      except FileNotFoundError:
-         print(f'⚠️ Falha ao localizar arquivo base. ⚠️')
-
-lobby = LobbyManager()
-lobby.guests_list(Status_Type.PENDING)
-
-print(f'\n ---------- \n')
-lobby.guests_list(Status_Type.CONFIRMED)
-
-print(f'\n ----- ALL ----- \n')
-lobby.guests_list()
-
-print(f'\n ----- SHOW ----- \n')
-lobby.guests_list()
+      except FileNotFoundError as fileNotFoundError:
+         print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
