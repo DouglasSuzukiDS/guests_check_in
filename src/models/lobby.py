@@ -3,14 +3,94 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from src.utils.guests_list import format_guest_list
+import csv
+from typing import List, Dict, Literal
+
+from src.models.guest import Guest
+from src.models.status_type import Status_Type
+
 
 class LobbyManager:
    def __init__(self):
-      pass
+      self._root = Path(__file__).resolve().parents[2]
+      self._fields_label = ['nome', 'codigo', 'status', 'entrada_em']
+      self._txt_file = self._root / 'src' / 'data' / 'convidados.txt'
+      self._csv_file = self._root / 'src' / 'data' / 'lista_eventos.csv'
+      self._encoding_new_line = {'encoding': 'UTF-8', 'newline': ''}
 
-   def get_guests(self):
-      format_guest_list()
+   def get_guests_list(self):
+      if self._csv_file.is_file():
+         # self.show_guest_list(self._csv_file)
+         pass
+      
+      try:
+         guest_list = []
+
+         with open (self._txt_file, 'r', **self._encoding_new_line) as file:
+            for gst in file:
+               name = gst.strip()
+
+               if name:
+                  guest = Guest(name)
+
+                  infos = [guest.guest_name(), guest.guest_code(), guest.status, None if guest.status == Status_Type.PENDING.value else guest.confirmation_date]
+                  structure = zip(self._fields_label, infos) # Cria o dicionario associando cada chave de fields_label ao seu valor em infos
+
+                  guest_list.append(dict(structure)) 
+
+         self.format_guest_list(self._csv_file, guest_list)
+         self.show_guest_list(self._csv_file)
+
+      except FileNotFoundError:
+         print(f'⚠️ Falha ao localizar arquivo base. ⚠️')
+      except Exception as error:
+         print(f'❌ Nao foi possivel executar a acao. {error} ❌')
+
+   def format_guest_list(self, dir: str, guest_list: List[Dict]):
+      try:
+         with open(dir, 'w', **self._encoding_new_line) as file:
+
+            writer = csv.DictWriter(file, fieldnames=self._fields_label)
+            writer.writeheader()
+            writer.writerows(guest_list)
+
+            print(f'✅ Arquivo {Path(file.name).name} criado com sucesso. ✅\n')
+      except FileNotFoundError:
+            print(f'⚠️ Falha ao localizar arquivo base. ⚠️')
+      except IOError as error:
+         print(f'❌ Nao foi possivel criar o arquivo: {error} ❌')
+
+   def show_guest_list(self, list: List[Dict], status: Status_Type | Literal['all'] = 'all'):
+      message = '✔️  Convidados encontrados: ✔️' if status == 'all' else f'🔄 Filtrando usuarios com status: {status.value} 🔄'
+
+      print(f'{message} \n')
+
+      guests = list if status == 'all' else [guest for guest in list if guest['status'] == status.value]
+
+      for guest in guests:
+         enter_at = f", {guest['entrada_em']}" if guest['status'] == Status_Type.CONFIRMED.value else ""
+
+         print(f'{guest['nome']}, {guest['codigo']}, {guest['status']}{enter_at}')
+
+   def guests_list(self, status: Status_Type | Literal['all'] = 'all'):
+      try:
+         with open(self._csv_file, 'r', **self._encoding_new_line) as file:
+            reader = csv.DictReader(file)
+            reader = list(reader)
+
+            # guests = [guest for guest in reader if guest['status'] == status.value]
+            self.show_guest_list(reader, status)
+      except FileNotFoundError:
+         print(f'⚠️ Falha ao localizar arquivo base. ⚠️')
 
 lobby = LobbyManager()
-print(lobby.get_guests())
+lobby.guests_list(Status_Type.PENDING)
+
+print(f'\n ---------- \n')
+lobby.guests_list(Status_Type.CONFIRMED)
+
+print(f'\n ----- ALL ----- \n')
+lobby.guests_list()
+
+print(f'\n ----- SHOW ----- \n')
+lobby.guests_list()
