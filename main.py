@@ -1,5 +1,6 @@
 from src.models.lobby import LobbyManager
 from src.models.status_type import Status_Type
+from src.utils.clear_console import clear_console
 
 lobby = LobbyManager()
 
@@ -12,8 +13,8 @@ def start():
       'Listar todos os convidadados com status CONFIRMADOS ✅️',
       'Verificar a quantidade de convidados 🔢',
       'Adicionar novo convidado ➕',
-      'Pesquisar convidado pelo CODIGO 🔎',
-      'Trocar status do convidado pelo CODIGO 🔄',
+      'Pesquisar convidado 🔎',
+      'Trocar status do convidado 🔄',
       'Encerrar programa ❌'
    ]
 
@@ -38,13 +39,15 @@ def start():
             name = input('Digite o nome do novo convidado: ')
             lobby.add_guest_csv_file(name)
          case '6':
-            code = input('Digite o codigo do convidado: ')
-            lobby.guest_by_code(code)
+            term = input('Digite o nome/codigo do convidado: ')
+            # lobby.guest_by_code(code)
+            lobby.search_guest(term)
          case '7':
             code = input('Digite o codigo do convidado para mudar o status: ')
             lobby.change_guest_status(code)
          case '8':
             run = False
+            clear_console()
             print('Programa encerrado.')
          case _:
             print('Opcao invalida.')

@@ -32,7 +32,8 @@ class Guest:
       """ 
          O metodo muda o status do Guest, adicionando ou nao a data e hora
       """
-      if self._code == code and self.status != status:
+      
+      if self._code == code and self.status != status.value:
          self.status = status.value
 
          if(status.value == Status_Type.CONFIRMED.value):

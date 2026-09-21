@@ -1,5 +1,5 @@
 import pytest
-from src.utils.letter_format import name_code
+from utils.text_format import name_code
 
 def test_simple_name():
    assert name_code('Luffy') == 'LUFY'
