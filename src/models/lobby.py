@@ -23,6 +23,8 @@ class LobbyManager:
    def get_guests_list(self):
       if self._csv_file.is_file():
          # self.show_guest_list(self._csv_file)
+         print('Entrou')
+         self.guests_list()
          return
       
       try:
@@ -83,26 +85,61 @@ class LobbyManager:
       guests = list if status.value == 'TODOS' else [guest for guest in list if guest['status'] == status.value]
 
       for guest in guests:
-         # enter_at = f", {guest['entrada_em']}" if guest['status'] == Status_Type.CONFIRMED.value else ""
+         enter_at = f", {guest['entrada_em']}" if guest['status'] == Status_Type.CONFIRMED.value else ""
 
-         # print(f'{guest['nome']}, {guest['codigo']}, {guest['status']}{enter_at}')
-         guest = Guest(guest['nome'])
-         print(guest.guest_info())
+         print(f'{guest['nome']}, {guest['codigo']}, {guest['status']}{enter_at}')
 
    def guests_list(self, status: Status_Type = Status_Type.ALL):
       file = self.read_csv_file()
 
       self.show_guest_list(file, status)
 
-   def guest_code(self, code:str):
-      list = self.read_csv_file()
-  
-      guests = [guest for guest in list if guest['codigo'] == code.upper()]
+   def guest_by_code(self, code:str):
+      file = self.read_csv_file()
+      guest_list = []
 
-      for guest in guests:
-         guest = Guest(guest['nome'])
-         print(guest.guest_info())
+      # list = [guest for guest in file if guest['codigo'] == code.upper()]
+
+      # Seleciona os guests que possuem o codigo com um o index da posicao dele no arquivo CSV
+      for i, guest in enumerate(file):
+         guest_list.append({'index_in_file': i, **guest}) if code.upper() == guest['codigo'] else ''
+
+      # Vai mostrar os guests com o mesmo codigo com o formato padrao, nome,codigo,status,entrada_em (se houver esse registro)
+      
+      print()
+      print(f'🔎 Convidado(s) localizado(s): 🔎 \n')
+
+      for i, guest in enumerate(guest_list, start=1):
+         values = [
+            guest['nome'],
+            guest['codigo'],
+            guest['status'],
+         ]
+
+         if guest['entrada_em']:
+            values.append(guest['entrada_em'])
+         
+         guest_selected = f'{str(i) + ". " if len(guest_list) > 1 else ""}{",".join(values)}'
+         print(guest_selected)
+
+      return guest_list
 
 
    def change_guest_status(self, code: str, status: Status_Type):
-      new_status = Status_Type.CONFIRMED.value if status.value != Status_Type.CONFIRMED.value else Status_Type.PENDING.value
+      file = self.read_csv_file()
+      guest_list = self.guest_by_code(code)
+
+      selected = int(input(f'\nO codigo {code} foi localizado nos seguintes convidados. Qual deseja alterar o status? '))
+
+      index_to_change = guest_list[selected - 1]['index_in_file'] 
+
+      new_status = Status_Type.CONFIRMED if file[index_to_change]['status'] == Status_Type.PENDING.value else Status_Type.PENDING
+      new_guest = Guest(guest_list[selected - 1]['nome'])
+      new_guest.guest_new_status(code.upper(), new_status)
+
+      file[index_to_change] = new_guest.guest_info()
+
+      for item in file:
+         print(item)
+
+      print(guest_list[0])

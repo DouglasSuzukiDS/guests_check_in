@@ -32,7 +32,7 @@ def start():
             lobby.guests_list(Status_Type.CONFIRMED)
          case '4':
             code = input('Digite o codigo do convidado: ')
-            lobby.guest_code(code)
+            lobby.guest_by_code(code)
          case '5':
             print('Trocando status')
          case '6':
