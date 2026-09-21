@@ -10,6 +10,7 @@ def start():
       'Listar todos os convidadados ✔️',
       'Listar todos os convidadados com status PENDENTES ⌛',
       'Listar todos os convidadados com status CONFIRMADOS ✅️',
+      'Adicionar novo convidado ➕',
       'Pesquisar convidado pelo CODIGO 🔎',
       'Trocar status do convidado pelo CODIGO 🔄',
       'Encerrar programa ❌'
@@ -31,12 +32,15 @@ def start():
          case '3':
             lobby.guests_list(Status_Type.CONFIRMED)
          case '4':
+            name = input('Digite o nome do novo convidado: ')
+            lobby.add_guest_csv_file(name)
+         case '5':
             code = input('Digite o codigo do convidado: ')
             lobby.guest_by_code(code)
-         case '5':
+         case '6':
             code = input('Digite o codigo do convidado para mudar o status: ')
             lobby.change_guest_status(code)
-         case '6':
+         case '7':
             run = False
             print('Programa encerrado.')
          case _:

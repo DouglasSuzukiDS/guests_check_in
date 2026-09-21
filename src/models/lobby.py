@@ -75,7 +75,28 @@ class LobbyManager:
             return reader
       except FileNotFoundError as fileNotFoundError:
          print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
-         
+
+   def add_guest_csv_file(self, name: str):
+      try:
+         with open(self._csv_file, 'a', **self._encoding_new_line) as file:
+            new_guest = Guest(name)
+            # O retorno vem {name},{code},{status}{confirmation} entao o split separa por virgula
+            guest_infos = new_guest.guest_info().split(',') 
+      
+            # Transforma no padrao do CSV {'nome': 'Trafalgar D. Water Law', 'codigo': 'TRAW', 'status': 'CONFIRMADO(A)', 'entrada_em': '20/09/2026 18:53:37'}
+            formated_guest_infos = (dict(zip(self._fields_label, guest_infos))) 
+
+            writer = csv.DictWriter(file, fieldnames=self._fields_label)
+            writer.writerow(formated_guest_infos)
+
+            message = f'➕ Convidado registrado na lista. ➕\n' 
+
+            print(message)
+      except FileNotFoundError as fileNotFoundError:
+         print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
+      except IOError as error:
+         print(f'❌ Nao foi possivel adicionar o novo usuario: {error} ❌')
+   
    def show_guest_list(self, list: List[Dict], status: Status_Type = Status_Type.ALL):
       found_guests = '✔️  Convidados encontrados: ✔️'
       status_emoji = '⌛' if status.value == 'PENDENTE' else '✅️'
