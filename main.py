@@ -34,7 +34,8 @@ def start():
             code = input('Digite o codigo do convidado: ')
             lobby.guest_by_code(code)
          case '5':
-            print('Trocando status')
+            code = input('Digite o codigo do convidado para mudar o status: ')
+            lobby.change_guest_status(code)
          case '6':
             run = False
             print('Programa encerrado.')

@@ -27,8 +27,6 @@ class Guest:
 
    def guest_new_status(self, code, status: Status_Type):
       if self._code == code and self.status != status:
-         print(f'new: {code, status.value}')
-
          self.status = status.value
 
          if(status.value == Status_Type.CONFIRMED.value):
