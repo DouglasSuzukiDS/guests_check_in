@@ -15,11 +15,12 @@ class Guest:
       # self.confirmation_date = '' if status == 'PENDENTE' else arrow.now('America/Sao_Paulo').format('DD/MM/YYYY HH:mm:ss')
       self.status = Status_Type.PENDING.value if name != 'Trafalgar D. Water Law' else Status_Type.CONFIRMED.value
       self.confirmation_date = '' if name != 'Trafalgar D. Water Law' else arrow.now('America/Sao_Paulo').format('DD/MM/YYYY HH:mm:ss')
-
+   
    def guest_name(self) -> str:
       return self._name
 
    def guest_code(self)  -> str:
+
       return name_code(self._name)
 
    def guest_status(self):
