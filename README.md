@@ -27,7 +27,7 @@
 
 [ ] Sistema de busca por termo aproximado (case-insensitive)
 
-[] Mecanismo de seleção numerada para casos de múltiplos resultados encontrados
+[✅️] Mecanismo de seleção numerada para casos de múltiplos resultados encontrados
 
 [✅️] Registro de data e horário de entrada em tempo real via módulo datetime (usado a biblioteca arrow)
 

@@ -24,10 +24,6 @@ class LobbyManager:
       """
          Metodo responsavel por ler o arquivo cvs ou pedir parar com os dados extraido do aruqivo txt
       """
-      if self._csv_file.is_file():
-         file = self.read_csv_file()
-         # self.show_guest_list(file)
-         return
       
       try:
          guest_list = []
@@ -128,7 +124,7 @@ class LobbyManager:
       guests_pending = f'⌛ Total de convidados pendentes com status {Status_Type.PENDING.value}: {pending} ⌛'
       guests_confirmed  = f'✅️ Total de convidados com status {Status_Type.CONFIRMED.value}: {confirmed} ✅️'
 
-      print(f'{guests_total}, \n{guests_pending}, \n{guests_confirmed}')
+      print(f'\n{guests_total}, \n{guests_pending}, \n{guests_confirmed}')
 
    def show_guest_list(self, list: Optional[List[Dict]] = None, status: Status_Type = Status_Type.ALL) -> None:
       """
@@ -138,12 +134,21 @@ class LobbyManager:
       if list == None:
          list = self.read_csv_file()
 
+      if len(list) <= 1:
+         msg_emoji = '⌛' if status.value == Status_Type.PENDING.value else '🚫'
+
+         msg_status = f' com status {status.value} ' if status.value != Status_Type.ALL.value else " "
+         message = f'\n{msg_emoji} Poxa voce ainda nao possui nenhum convidado{msg_status}{msg_emoji}'
+
+         print(message)
+         return
+
       found_guests = '✔️  Convidados encontrados: ✔️'
       status_emoji = '⌛' if status.value == 'PENDENTE' else '✅️'
       status_message = f'{status_emoji} Filtrando usuarios com status: {status.value} {status_emoji}'
       message = found_guests if status.value == 'TODOS' else status_message
 
-      print(f'{message} \n')
+      print(f'\n {message} \n')
 
       guests = list if status.value == 'TODOS' else [guest for guest in list if guest['status'] == status.value]
 

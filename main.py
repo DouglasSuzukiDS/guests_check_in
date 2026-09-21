@@ -18,7 +18,7 @@ def start():
    ]
 
    while run:
-      print('\n📋✏️  ---------- Sistema de Gerenciamento de Convidados ----------  ✏️ 📋\n')
+      print('\n📋 ✏️  ---------- Sistema de Gerenciamento de Convidados ----------  ✏️ 📋\n')
 
       for index, option in enumerate(options, start=1):
          print(f'{index}. {option}')
@@ -29,9 +29,9 @@ def start():
          case '1':
             lobby.show_guest_list()
          case '2':
-            lobby.show_guest_list(Status_Type.PENDING)
+            lobby.show_guest_list(status=Status_Type.PENDING)
          case '3':
-            lobby.show_guest_list(Status_Type.CONFIRMED)
+            lobby.show_guest_list(status=Status_Type.CONFIRMED)
          case '4':
             lobby.calc_guest()
          case '5':
