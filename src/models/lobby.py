@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import csv
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from src.models.guest import Guest
 from src.models.status_type import Status_Type
@@ -20,10 +20,13 @@ class LobbyManager:
 
       self.get_guests_list()
 
-   def get_guests_list(self):
+   def get_guests_list(self) -> None:
+      """
+         Metodo responsavel por ler o arquivo cvs ou pedir parar com os dados extraido do aruqivo txt
+      """
       if self._csv_file.is_file():
-         # self.show_guest_list(self._csv_file)
-         self.guests_list()
+         file = self.read_csv_file()
+         # self.show_guest_list(file)
          return
       
       try:
@@ -49,7 +52,10 @@ class LobbyManager:
       except Exception as error:
          print(f'❌ Nao foi possivel executar a acao. {error} ❌')
 
-   def write_csv_file(self, dir: str, guest_list: List[Dict], update_status: bool = False):
+   def write_csv_file(self, dir: str, guest_list: List[Dict], update_status: bool = False) -> None:
+      """
+         Metodo responsavel por criar/escrever o arquivo csv
+      """
       try:
          with open(dir, 'w', **self._encoding_new_line) as file:
 
@@ -66,7 +72,10 @@ class LobbyManager:
       except IOError as error:
          print(f'❌ Nao foi possivel criar o arquivo: {error} ❌')
 
-   def read_csv_file(self):
+   def read_csv_file(self) -> List[Dict]:
+      """
+         Metodo responsavel por ler o arquivo csv
+      """
       try:
          with open(self._csv_file, 'r', **self._encoding_new_line) as file:
             reader = csv.DictReader(file)
@@ -76,7 +85,10 @@ class LobbyManager:
       except FileNotFoundError as fileNotFoundError:
          print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
 
-   def add_guest_csv_file(self, name: str):
+   def add_guest_csv_file(self, name: str) -> None:
+      """
+         Metodo responsavel por adicionar um novo convidado no arquivo csv
+      """
       try:
          with open(self._csv_file, 'a', **self._encoding_new_line) as file:
             new_guest = Guest(name)
@@ -96,8 +108,36 @@ class LobbyManager:
          print(f'⚠️  Falha ao localizar arquivo base. ⚠️ {fileNotFoundError}')
       except IOError as error:
          print(f'❌ Nao foi possivel adicionar o novo usuario: {error} ❌')
-   
-   def show_guest_list(self, list: List[Dict], status: Status_Type = Status_Type.ALL):
+
+   def calc_guest(self) -> None:
+      """
+         Metodo responsavel por calcular a quantidade de convidados, mostrando o total, pendentes e confirmados
+      """
+      file = self.read_csv_file()
+      total = len(file)
+      pending = 0
+      confirmed = 0
+
+      for guest in file:
+        if guest['status'] == Status_Type.PENDING.value: 
+           pending += 1
+        else: 
+           confirmed += 1
+
+      guests_total = f'🔢 Total de convidados: {total} 🔢'
+      guests_pending = f'⌛ Total de convidados pendentes com status {Status_Type.PENDING.value}: {pending} ⌛'
+      guests_confirmed  = f'✅️ Total de convidados com status {Status_Type.CONFIRMED.value}: {confirmed} ✅️'
+
+      print(f'{guests_total}, \n{guests_pending}, \n{guests_confirmed}')
+
+   def show_guest_list(self, list: Optional[List[Dict]] = None, status: Status_Type = Status_Type.ALL) -> None:
+      """
+         Metodo responsavel por lista os convidados
+      """
+
+      if list == None:
+         list = self.read_csv_file()
+
       found_guests = '✔️  Convidados encontrados: ✔️'
       status_emoji = '⌛' if status.value == 'PENDENTE' else '✅️'
       status_message = f'{status_emoji} Filtrando usuarios com status: {status.value} {status_emoji}'
@@ -112,12 +152,10 @@ class LobbyManager:
 
          print(f'{guest['nome']}, {guest['codigo']}, {guest['status']}{enter_at}')
 
-   def guests_list(self, status: Status_Type = Status_Type.ALL):
-      file = self.read_csv_file()
-
-      self.show_guest_list(file, status)
-
-   def guest_by_code(self, code:str):
+   def guest_by_code(self, code:str) -> List[Dict]:
+      """
+         Metodo responsavel por retornar convidados pesquisados pelo codigo
+      """
       file = self.read_csv_file()
       guest_list = []
 
@@ -147,8 +185,11 @@ class LobbyManager:
 
       return guest_list
 
-   # Funcao responsavel por atualizar o status do usuario e criar a lista
-   def generate_guest_with_new_status(self, guest_list: List, code: str, selected: int):
+   # Metodo responsavel por atualizar o status do usuario e criar a lista
+   def generate_guest_with_new_status(self, guest_list: List, code: str, selected: int) -> Dict:
+      """
+         Metodo responsavel por tratar (gerar novo Guest, e mudar seu status) e adicionar esse Guest na posicao exata da list que ele ele foi encontrado
+      """
       file = self.read_csv_file()
       guest_list = self.guest_by_code(code)
 
@@ -174,7 +215,10 @@ class LobbyManager:
 
       return file
 
-   def change_guest_status(self, code: str):
+   def change_guest_status(self, code: str) -> List[Dict]:
+      """
+         Metodo responsavel por recriar o arquivo csv o novo status do usuario
+      """
       guest_list = self.guest_by_code(code)
 
       selected = 1 # Para caso a lista so retorne 1 convidado, generate_guest_with_new_status ja calcula -1 para pegar a item[0] (1 posicao)

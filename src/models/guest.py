@@ -17,16 +17,21 @@ class Guest:
       self.confirmation_date = '' if name != 'Trafalgar D. Water Law' else arrow.now('America/Sao_Paulo').format('DD/MM/YYYY HH:mm:ss')
    
    def guest_name(self) -> str:
+      """ O metodo retorna o nome Guest """
       return self._name
 
    def guest_code(self)  -> str:
-
+      """ O metodo retorna o codigo Guest """
       return name_code(self._name)
 
-   def guest_status(self):
+   def guest_status(self) -> str:
+      """ O metodo retorna o status Guest """
       return self.status
 
-   def guest_new_status(self, code, status: Status_Type):
+   def guest_new_status(self, code, status: Status_Type) -> None:
+      """ 
+         O metodo muda o status do Guest, adicionando ou nao a data e hora
+      """
       if self._code == code and self.status != status:
          self.status = status.value
 
@@ -39,6 +44,7 @@ class Guest:
             self.confirmation_date = ''
 
    def guest_info(self) -> str:
+      """ O metodo retorna as informacoes Guest """
       name = self._name
       code = self._code
       status = self.status
