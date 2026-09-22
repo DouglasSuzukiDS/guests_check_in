@@ -86,6 +86,11 @@ class LobbyManager:
       """
          Metodo responsavel por adicionar um novo convidado no arquivo csv
       """
+
+      if len(name) <= 2:
+         print(f'⚠️  O nome precisa ter pelo menos 3 letras ⚠️')
+         return
+
       try:
          with open(self._csv_file_src, 'a', **self._encoding_new_line) as file:
             new_guest = Guest(name)
